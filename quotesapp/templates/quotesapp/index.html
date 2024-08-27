@@ -1,0 +1,73 @@
+{% extends 'quotes/base.html' %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Quotes App</title>
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css"/>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'quotesapp/style.css' %}">
+    <script>
+        function confirmDelete(objectType, objectId) {
+            if (confirm('Are you sure you want to delete this ' + objectType + '?')) {
+                window.location.href = `/quotesapp/${objectType}/delete/${objectId}/`;
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <nav style="margin-bottom: 20px; border-bottom: 2px solid; padding-left: 30px">
+                {% if user.is_authenticated %}
+                <ul>
+                    <li><a href="{% url 'quotesapp:add_author' %}" role="button">Add Author</a></li>
+                    <li><a href="{% url 'quotesapp:add_quote' %}" role="button">Add Quote</a></li>
+                </ul>
+                <ul>
+                    <img src="{{ user.profile.avatar.url }}" alt="Avatar" style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%; vertical-align: middle;">
+                    <span style="padding: 10pt;">Welcome, <b>{{ user.username }}!</b></span>
+                    <li><a href="{% url 'users:profile' %}" role="button">Profile</a></li>
+                    <li><a href="{% url 'users:logout' %}" role="button">Logout</a></li>
+                </ul>
+                {% else %}
+                <ul>
+                    <li><a href="{% url 'users:signup' %}" role="button">Sign Up</a></li>
+                    <li><a href="{% url 'users:login' %}" role="button">Login</a></li>
+                </ul>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <div class="content-container">
+        <main style="width: 80%; margin: auto;">
+            <h1>Quotes</h1>
+            {% for quote in quotes %}
+            <div style="margin-bottom: 20px; border-bottom: 2px solid; padding-left: 30px">
+                <p>"{{ quote.quote }}"</p>
+                <p>by <a href="{% url 'quotesapp:detail' author_id=quote.author.id %}">{{ quote.author.name }}</a></p>
+
+            </div>
+            {% endfor %}
+        </main>
+    </div>
+
+    <footer>
+        <div class="container">
+            {% if quotes.has_previous %}
+            <a href="?page=1" role="button">First</a>
+            <a href="?page={{ quotes.previous_page_number }}" role="button">Previous</a>
+            {% endif %}
+            <span style="padding-left: 15px; padding-right: 15px">Page {{ quotes.number }} of {{ quotes.paginator.num_pages }}</span>
+            {% if quotes.has_next %}
+            <a href="?page={{ quotes.next_page_number }}" role="button">Next</a>
+            <a href="?page={{ quotes.paginator.num_pages }}" role="button">Last</a>
+            {% endif %}
+        </div>
+    </footer>
+
+</body>
+</html>
